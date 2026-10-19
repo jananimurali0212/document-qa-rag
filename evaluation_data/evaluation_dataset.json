@@ -1,0 +1,102 @@
+[
+  {
+    "question_id": "Q001",
+    "question": "What is the main objective of the system?",
+    "reference_answer": "The main objective is to enable users to upload documents (PDF, DOCX, TXT), perform semantic retrieval, and generate evidence-grounded answers with source references while measuring retrieval and answer quality.",
+    "relevant_chunk_ids": [
+      "doc01_chunk_000",
+      "doc01_chunk_001"
+    ],
+    "metadata": {
+      "topic": "Objectives",
+      "difficulty": "easy"
+    }
+  },
+  {
+    "question_id": "Q002",
+    "question": "Which file formats are supported for document ingestion?",
+    "reference_answer": "The system supports PDF, DOCX, and TXT files, extracting text using PyMuPDF for PDF and python-docx for DOCX while tracking page numbers.",
+    "relevant_chunk_ids": [
+      "doc01_chunk_002"
+    ],
+    "metadata": {
+      "topic": "Ingestion",
+      "difficulty": "easy"
+    }
+  },
+  {
+    "question_id": "Q003",
+    "question": "How is Hit Rate@K calculated in the evaluation harness?",
+    "reference_answer": "Hit Rate@K is defined as (1/N) * sum(I[R_k ∩ G != ∅]), which represents the fraction of questions for which at least one ground-truth relevant chunk appears in the top K retrieved results.",
+    "relevant_chunk_ids": [
+      "doc01_chunk_004",
+      "doc01_chunk_005"
+    ],
+    "metadata": {
+      "topic": "Retrieval Metrics",
+      "difficulty": "medium"
+    }
+  },
+  {
+    "question_id": "Q004",
+    "question": "What is the difference between Hit Rate@K and Recall@K?",
+    "reference_answer": "Hit Rate@K checks binary success (whether any relevant chunk was retrieved in the top K), whereas Recall@K measures the proportion of all annotated relevant chunks retrieved (|R_k ∩ G| / |G|).",
+    "relevant_chunk_ids": [
+      "doc01_chunk_004",
+      "doc01_chunk_005"
+    ],
+    "metadata": {
+      "topic": "Retrieval Metrics",
+      "difficulty": "medium"
+    }
+  },
+  {
+    "question_id": "Q005",
+    "question": "How is Mean Reciprocal Rank (MRR) defined?",
+    "reference_answer": "MRR is calculated as (1/N) * sum(1 / r_i), where r_i is the 1-based rank of the first relevant chunk found in top K results. If no relevant chunk appears, that question contributes 0.",
+    "relevant_chunk_ids": [
+      "doc01_chunk_005"
+    ],
+    "metadata": {
+      "topic": "Retrieval Metrics",
+      "difficulty": "medium"
+    }
+  },
+  {
+    "question_id": "Q006",
+    "question": "What does the faithfulness metric evaluate in RAG generation?",
+    "reference_answer": "Faithfulness evaluates whether claims and facts asserted in the generated answer are strictly supported by the retrieved context passages, helping detect hallucinations.",
+    "relevant_chunk_ids": [
+      "doc01_chunk_006"
+    ],
+    "metadata": {
+      "topic": "Answer Quality",
+      "difficulty": "medium"
+    }
+  },
+  {
+    "question_id": "Q007",
+    "question": "What chunk metadata schema is required by the chunking engine?",
+    "reference_answer": "The chunk record schema requires chunk_id, document_id, document_name, page_number, text, and chunk_index.",
+    "relevant_chunk_ids": [
+      "doc01_chunk_003"
+    ],
+    "metadata": {
+      "topic": "Chunking",
+      "difficulty": "hard"
+    }
+  },
+  {
+    "question_id": "Q008",
+    "question": "What instruction is given to the LLM when context is insufficient?",
+    "reference_answer": "The prompt builder instructs the LLM to answer using only supplied context, not invent facts, and strictly abstain by saying so if context is insufficient.",
+    "relevant_chunk_ids": [
+      "doc01_chunk_001",
+      "doc01_chunk_007"
+    ],
+    "metadata": {
+      "topic": "Generation",
+      "difficulty": "hard"
+    }
+  }
+]
