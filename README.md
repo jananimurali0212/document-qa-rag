@@ -42,8 +42,8 @@ Manual document review is time-consuming, and general-purpose LLM chatbots frequ
 
 ```mermaid
 graph TD
-    User([User]) <--> UI[Streamlit User Interface]
-    UI <--> Controller[Application Controller]
+    User([User]) <--> UI[FastAPI & Web UI (SPA)]
+    UI <--> Controller[RAG Pipeline Manager]
 
     subgraph Ingestion Pipeline
         Upload[Upload PDF / DOCX / TXT] --> Validator[File Validator]
@@ -264,8 +264,7 @@ cp .env.example .env
 
 ## 7. Running the Application
 
-### Option A: Modern Web UI (Recommended • FastAPI + Vanilla SPA)
-Launch the modern, responsive web application (zero-Streamlit, ultra-fast single page interface with dark glassmorphism, dynamic animations, live telemetry, and interactive SVG charts):
+Launch the modern, responsive web application (ultra-fast single page interface with dark glassmorphism, dynamic animations, live telemetry, and interactive SVG charts):
 
 ```bash
 # Using the active virtualenv
@@ -280,17 +279,6 @@ The application opens instantly at [**`http://localhost:8000`**](http://localhos
 3. **📑 Knowledge Base Management:** Drag-and-drop document upload (PDF, DOCX, TXT), animated progress bar, document inventory table, and modal chunk inspector.
 4. **📊 Evaluation Benchmark Harness:** Interactive evaluation against golden datasets measuring Hit Rate@K, Recall@K, MRR, Precision@K, Faithfulness, and Latency, coupled with an interactive $K \in [1, 3, 5]$ parameter sweep chart and one-click CSV/JSON export.
 5. **⚙️ Pipeline Tuning Drawer:** Instant adjustments for Top-K candidates, neural reranking toggle, chunk size, and chunk overlap.
-
----
-
-### Option B: Streamlit Dashboard (Alternative)
-If you prefer running via Streamlit:
-
-```bash
-streamlit run app.py
-```
-
-Opens at `http://localhost:8501`.
 
 ---
 
