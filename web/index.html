@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAG Studio • Document Q&A & Evaluation Harness</title>
+  <meta name="description" content="Production-grade Document Q&A RAG platform with verified citations, retrieval benchmarking, and Gemini 3.8 Flash integration.">
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-logo">
+          <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          <div class="brand-text">
+            <span class="brand-title">RAG STUDIO <span class="badge-pro">PRO</span></span>
+            <span class="brand-subtitle">Document Intelligence & Evaluation Harness</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <!-- Live System Telemetry Bar -->
+        <div class="telemetry-pill" id="telemetryStatusPill">
+          <span class="pulse-indicator pulse-green" id="llmPulse"></span>
+          <span class="telemetry-label" id="llmStatusText">Checking LLM...</span>
+        </div>
+        <div class="telemetry-divider"></div>
+        <div class="telemetry-stats">
+          <span class="stat-item"><strong id="statDocCount">0</strong> docs</span>
+          <span class="stat-dot">•</span>
+          <span class="stat-item"><strong id="statChunkCount">0</strong> chunks</span>
+          <span class="stat-dot">•</span>
+          <span class="stat-badge" id="statVectorBackend">FAISS Cosine</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button id="btnSettingsToggle" class="btn-icon" title="Pipeline Settings" aria-label="Pipeline Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Navigation Bar -->
+    <nav class="nav-bar">
+      <div class="nav-tabs" role="tablist">
+        <button class="nav-tab active" id="tabBtnChat" data-tab="tabChat" role="tab" aria-selected="true">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span>Chat & Q&A</span>
+        </button>
+        <button class="nav-tab" id="tabBtnDocs" data-tab="tabDocs" role="tab" aria-selected="false">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span>Knowledge Base</span>
+          <span class="tab-counter" id="tabBadgeDocs">0</span>
+        </button>
+        <button class="nav-tab" id="tabBtnEval" data-tab="tabEval" role="tab" aria-selected="false">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          <span>Evaluation Benchmark</span>
+        </button>
+        <button class="nav-tab" id="tabBtnArch" data-tab="tabArch" role="tab" aria-selected="false">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+          </svg>
+          <span>Architecture & Docs</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Settings Drawer / Modal -->
+    <div class="settings-drawer" id="settingsDrawer">
+      <div class="drawer-header">
+        <h3>⚙️ Pipeline Tuning & Configuration</h3>
+        <button class="btn-close" id="btnCloseDrawer">&times;</button>
+      </div>
+      <div class="drawer-body">
+        <div class="setting-group">
+          <label for="settingTopK">Retrieval Top-K Candidates: <span id="valTopK">5</span></label>
+          <input type="range" id="settingTopK" min="1" max="10" value="5" step="1">
+          <small class="setting-hint">Number of semantic context passages passed to the generation model.</small>
+        </div>
+
+        <div class="setting-group switch-group">
+          <div>
+            <label for="settingReranker">Enable Neural/Lexical Reranker</label>
+            <small class="setting-hint">Optimizes candidate ordering using lexical-semantic fusion.</small>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="settingReranker" checked>
+            <span class="slider round"></span>
+          </label>
+        </div>
+
+        <div class="setting-group">
+          <label for="settingChunkSize">Target Chunk Size (Chars): <span id="valChunkSize">500</span></label>
+          <input type="range" id="settingChunkSize" min="150" max="1200" value="500" step="50">
+        </div>
+
+        <div class="setting-group">
+          <label for="settingChunkOverlap">Chunk Overlap (Chars): <span id="valChunkOverlap">100</span></label>
+          <input type="range" id="settingChunkOverlap" min="0" max="250" value="100" step="25">
+        </div>
+
+        <hr class="drawer-divider">
+
+        <div class="danger-zone">
+          <h4>⚠️ Danger Zone</h4>
+          <p class="text-muted">Purge all vector embeddings and stored document chunks.</p>
+          <button id="btnClearKB" class="btn-danger">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            Reset Entire Knowledge Base
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+    <!-- MAIN VIEW CONTAINER -->
+    <main class="main-content">
+      
+      <!-- ============================================== -->
+      <!-- TAB 1: CHAT & Q&A VIEW                         -->
+      <!-- ============================================== -->
+      <section class="tab-pane active" id="tabChat">
+        <div class="chat-container">
+          
+          <!-- Conversation Stream -->
+          <div class="chat-stream" id="chatStream">
+            <!-- Welcome Hero Box -->
+            <div class="chat-welcome-card" id="chatWelcomeCard">
+              <div class="welcome-icon">⚡</div>
+              <h2>Enterprise Document Intelligence</h2>
+              <p>Ask natural questions grounded strictly in your ingested PDF, Word, and text documents. Every claim is verified with audited inline citations.</p>
+              
+              <div class="quick-prompts-label">Try asking about your documents:</div>
+              <div class="quick-prompts-grid" id="quickPromptsGrid">
+                <button class="quick-chip" data-prompt="What is tuple unpacking in Python? Give an example.">
+                  <span class="chip-icon">🐍</span> What is tuple unpacking in Python?
+                </button>
+                <button class="quick-chip" data-prompt="What are the essential equipment needed in a catering setup?">
+                  <span class="chip-icon">🍳</span> What equipment is needed in a catering setup?
+                </button>
+                <button class="quick-chip" data-prompt="Explain dishwasher sanitization temperatures in catering equipment.">
+                  <span class="chip-icon">🌡️</span> Explain dishwasher sanitization temperatures
+                </button>
+                <button class="quick-chip" data-prompt="What is Mean Reciprocal Rank (MRR) and Recall@K?">
+                  <span class="chip-icon">📊</span> What is Mean Reciprocal Rank (MRR)?
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Input Dock -->
+          <div class="chat-input-dock">
+            <form id="chatForm" class="chat-form">
+              <div class="input-wrapper">
+                <textarea 
+                  id="queryInput" 
+                  rows="1" 
+                  placeholder="Ask a question about your documents... (Press Enter to send, Shift+Enter for newline)"
+                  required
+                ></textarea>
+                <div class="input-actions">
+                  <div class="input-pills">
+                    <span class="pill-control" id="badgeTopK">Top-K: 5</span>
+                    <span class="pill-control" id="badgeReranker">Reranker: ON</span>
+                  </div>
+                  <button type="submit" id="btnSendQuery" class="btn-send" title="Send Query" aria-label="Send Query">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 2: KNOWLEDGE BASE VIEW                     -->
+      <!-- ============================================== -->
+      <section class="tab-pane" id="tabDocs">
+        <div class="kb-container">
+          
+          <!-- Upload Section -->
+          <div class="card upload-card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <h3>Document Ingestion & Indexing Engine</h3>
+              </div>
+              <span class="badge-accent">Supports PDF, DOCX, TXT</span>
+            </div>
+            
+            <div class="card-body">
+              <!-- Drag & Drop Area -->
+              <div class="dropzone" id="uploadDropzone">
+                <input type="file" id="fileInput" multiple accept=".pdf,.docx,.txt" class="file-input-hidden">
+                <div class="dropzone-content">
+                  <div class="dropzone-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="12" y1="18" x2="12" y2="12"></line>
+                      <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                  </div>
+                  <h4>Drag & drop documents here, or <span class="highlight-text">browse files</span></h4>
+                  <p class="dropzone-sub">Automatic page-preserving parsing, semantic chunking, and embedding generation.</p>
+                </div>
+              </div>
+
+              <!-- Selected Files Queue -->
+              <div class="file-queue" id="fileQueue" style="display: none;">
+                <div class="queue-header">
+                  <span id="queueCount">0 files ready to ingest</span>
+                  <button id="btnClearQueue" class="btn-text">Clear selection</button>
+                </div>
+                <div class="queue-list" id="queueList"></div>
+                <div class="queue-actions">
+                  <button id="btnProcessUpload" class="btn-primary">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    Process & Index Files
+                  </button>
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="upload-progress-box" id="uploadProgressBox" style="display: none;">
+                <div class="progress-info">
+                  <span id="uploadProgressText">Processing documents...</span>
+                  <span id="uploadProgressPercent">0%</span>
+                </div>
+                <div class="progress-bar-track">
+                  <div class="progress-bar-fill" id="uploadProgressBar" style="width: 0%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Inventory Table -->
+          <div class="card inventory-card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                <h3>Active Document Inventory (<span id="tableDocCount">0</span>)</h3>
+              </div>
+              <div class="table-controls">
+                <input type="text" id="docSearchInput" placeholder="Filter documents..." class="input-search">
+              </div>
+            </div>
+
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="data-table" id="docsTable">
+                  <thead>
+                    <tr>
+                      <th>Document ID</th>
+                      <th>File Name</th>
+                      <th>Format</th>
+                      <th>Pages</th>
+                      <th>Chunks</th>
+                      <th>Size</th>
+                      <th>Ingested At</th>
+                      <th class="text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="docsTableBody">
+                    <tr>
+                      <td colspan="8" class="text-center py-4 text-muted">Loading documents...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 3: EVALUATION BENCHMARK DASHBOARD          -->
+      <!-- ============================================== -->
+      <section class="tab-pane" id="tabEval">
+        <div class="eval-container">
+          
+          <!-- Benchmark Header Card -->
+          <div class="card eval-header-card">
+            <div class="eval-header-content">
+              <div>
+                <h2>RAG Retrieval & Generation Benchmark Harness</h2>
+                <p>Execute rigorous offline evaluations measuring Hit Rate@K, Recall@K, MRR, Precision@K, Faithfulness, and Latency against golden ground-truth datasets.</p>
+              </div>
+              <div class="eval-actions">
+                <button id="btnRunBenchmark" class="btn-primary btn-glow">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  Run Benchmark Suite
+                </button>
+                <div class="dropdown">
+                  <button id="btnExportMenu" class="btn-secondary">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Export
+                  </button>
+                  <div class="dropdown-content" id="exportDropdown">
+                    <button id="btnExportCSV">Export as CSV</button>
+                    <button id="btnExportJSON">Export as JSON</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="benchmark-loader" id="benchmarkLoader" style="display: none;">
+              <div class="loader-spinner"></div>
+              <span>Executing evaluation pipeline and comparative K-sweeps (this may take a few moments)...</span>
+            </div>
+          </div>
+
+          <!-- 6 KPI Metric Cards Grid -->
+          <div class="metrics-grid">
+            
+            <div class="metric-card">
+              <div class="metric-top">
+                <span class="metric-title">Hit Rate@K</span>
+                <span class="metric-target target-high">Target ≥ 85%</span>
+              </div>
+              <div class="metric-value" id="metricHitRate">--%</div>
+              <div class="metric-sub" id="metricHitRateSub">Evaluated at K=5</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-top">
+                <span class="metric-title">Recall@K</span>
+                <span class="metric-target target-high">Target ≥ 75%</span>
+              </div>
+              <div class="metric-value" id="metricRecall">--%</div>
+              <div class="metric-sub" id="metricRecallSub">Relevant chunks retrieved</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-top">
+                <span class="metric-title">MRR</span>
+                <span class="metric-target target-high">Target ≥ 0.70</span>
+              </div>
+              <div class="metric-value" id="metricMRR">--</div>
+              <div class="metric-sub" id="metricMRRSub">Mean Reciprocal Rank</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-top">
+                <span class="metric-title">Precision@K</span>
+                <span class="metric-target target-neutral">Quality Density</span>
+              </div>
+              <div class="metric-value" id="metricPrecision">--%</div>
+              <div class="metric-sub" id="metricPrecisionSub">Purity of top candidates</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-top">
+                <span class="metric-title">Faithfulness</span>
+                <span class="metric-target target-high">Target ≥ 0.90</span>
+              </div>
+              <div class="metric-value" id="metricFaithfulness">--%</div>
+              <div class="metric-sub" id="metricFaithfulnessSub">Context citation grounding</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-top">
+                <span class="metric-title">Avg Latency</span>
+                <span class="metric-target target-latency">Target &lt; 2000ms</span>
+              </div>
+              <div class="metric-value" id="metricLatency">-- ms</div>
+              <div class="metric-sub" id="metricLatencySub">End-to-end execution</div>
+            </div>
+
+          </div>
+
+          <!-- Comparative Parameter Sweep Chart -->
+          <div class="card chart-card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                <h3>Parameter Sweep: Performance across K ∈ [1, 3, 5]</h3>
+              </div>
+              <div class="chart-legend">
+                <span class="legend-item"><span class="legend-dot dot-blue"></span> Hit Rate@K</span>
+                <span class="legend-item"><span class="legend-dot dot-green"></span> Recall@K</span>
+                <span class="legend-item"><span class="legend-dot dot-purple"></span> MRR</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="chart-container" id="sweepChartContainer">
+                <!-- Dynamic SVG Canvas rendered via app.js -->
+                <svg id="sweepChartSvg" class="chart-svg" viewBox="0 0 800 260" preserveAspectRatio="none"></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Per-Question Drilldown Results Table -->
+          <div class="card results-card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                <h3>Granular Question-Level Outcomes</h3>
+              </div>
+              <div class="table-controls">
+                <input type="text" id="evalSearchInput" placeholder="Filter questions..." class="input-search">
+              </div>
+            </div>
+
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="data-table" id="evalTable">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Query</th>
+                      <th>Hit@K</th>
+                      <th>Recall@K</th>
+                      <th>MRR</th>
+                      <th>Precision@K</th>
+                      <th>Faithfulness</th>
+                      <th>Latency</th>
+                      <th class="text-right">Detail</th>
+                    </tr>
+                  </thead>
+                  <tbody id="evalTableBody">
+                    <tr>
+                      <td colspan="9" class="text-center py-4 text-muted">Click "Run Benchmark Suite" above to evaluate your golden dataset.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 4: ARCHITECTURE & SYSTEM DOCS              -->
+      <!-- ============================================== -->
+      <section class="tab-pane" id="tabArch">
+        <div class="arch-container">
+          
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                <h3>Document Intelligence Pipeline Architecture</h3>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <div class="arch-flow">
+                
+                <div class="flow-step">
+                  <div class="step-badge">Phase 1</div>
+                  <h4>Document Ingestion</h4>
+                  <p>PyMuPDF for PDFs (preserves original page numbers) and python-docx for Word files.</p>
+                  <ul class="step-list">
+                    <li>Strict schema validation</li>
+                    <li>Page-level metadata capture</li>
+                  </ul>
+                </div>
+
+                <div class="flow-arrow">➔</div>
+
+                <div class="flow-step">
+                  <div class="step-badge">Phase 2</div>
+                  <h4>Chunking & Vectors</h4>
+                  <p>Character-level sliding window with configurable size (500) and overlap (100).</p>
+                  <ul class="step-list">
+                    <li>Deterministic content hashing</li>
+                    <li>FAISS IndexFlatIP & NumPy Cosine</li>
+                  </ul>
+                </div>
+
+                <div class="flow-arrow">➔</div>
+
+                <div class="flow-step">
+                  <div class="step-badge">Phase 3</div>
+                  <h4>Retrieval & Rerank</h4>
+                  <p>Dense semantic retrieval coupled with lexical stem scoring reranker.</p>
+                  <ul class="step-list">
+                    <li>Candidate score re-weighting</li>
+                    <li>Top-K filtering (default 5)</li>
+                  </ul>
+                </div>
+
+                <div class="flow-arrow">➔</div>
+
+                <div class="flow-step">
+                  <div class="step-badge">Phase 4</div>
+                  <h4>Synthesis & Citations</h4>
+                  <p>Gemini 3.8 Flash strict context grounding or deterministic local extractor.</p>
+                  <ul class="step-list">
+                    <li>Inline source citations</li>
+                    <li>Zero hallucination guarantee</li>
+                  </ul>
+                </div>
+
+              </div>
+
+              <div class="math-specs-grid">
+                <div class="math-spec-card">
+                  <h4>Hit Rate@K</h4>
+                  <div class="math-formula">$$\text{Hit@K} = \frac{1}{|Q|}\sum_{q \in Q} \mathbb{I}(\text{Top-}K_q \cap G_q \neq \emptyset)$$</div>
+                  <p>Measures whether at least one ground-truth passage appears within the top-K candidate list.</p>
+                </div>
+
+                <div class="math-spec-card">
+                  <h4>Mean Reciprocal Rank (MRR)</h4>
+                  <div class="math-formula">$$\text{MRR} = \frac{1}{|Q|}\sum_{q \in Q} \frac{1}{\text{rank}_q}$$</div>
+                  <p>Evaluates where the first relevant ground-truth item lands in the retrieved candidate list.</p>
+                </div>
+
+                <div class="math-spec-card">
+                  <h4>Recall@K</h4>
+                  <div class="math-formula">$$\text{Recall@K} = \frac{|\text{Top-}K_q \cap G_q|}{|G_q|}$$</div>
+                  <p>Quantifies the proportion of all relevant passages captured by the top-K candidates.</p>
+                </div>
+
+                <div class="math-spec-card">
+                  <h4>Precision@K</h4>
+                  <div class="math-formula">$$\text{Precision@K} = \frac{|\text{Top-}K_q \cap G_q|}{K}$$</div>
+                  <p>Measures the purity of retrieved candidates, avoiding noisy distractors.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Chunk Inspector Modal -->
+    <div class="modal" id="chunkModal">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <div>
+            <h3 id="modalDocTitle">Document Chunks Inspector</h3>
+            <span class="modal-subtitle" id="modalDocMeta">--</span>
+          </div>
+          <button class="btn-close" id="btnCloseModal">&times;</button>
+        </div>
+        <div class="modal-body" id="modalChunkList">
+          <!-- Populated dynamically via app.js -->
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+
+    <!-- Question Drilldown Modal -->
+    <div class="modal" id="questionModal">
+      <div class="modal-dialog modal-large">
+        <div class="modal-header">
+          <div>
+            <h3 id="qModalTitle">Question Evaluation Detail</h3>
+            <span class="modal-subtitle" id="qModalId">--</span>
+          </div>
+          <button class="btn-close" id="btnCloseQModal">&times;</button>
+        </div>
+        <div class="modal-body" id="qModalBody">
+          <!-- Populated dynamically via app.js -->
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop" id="qModalBackdrop"></div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

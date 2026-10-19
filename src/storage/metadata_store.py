@@ -131,6 +131,23 @@ class MetadataStore:
             cursor.execute("SELECT * FROM documents ORDER BY created_at DESC")
             return [dict(row) for row in cursor.fetchall()]
 
+    def get_all_chunks(self) -> List[ChunkRecord]:
+        """Retrieve all chunks across all documents as ChunkRecord objects."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM chunks ORDER BY document_id, chunk_index ASC")
+            return [
+                ChunkRecord(
+                    chunk_id=r["chunk_id"],
+                    document_id=r["document_id"],
+                    document_name=r["document_name"],
+                    page_number=r["page_number"],
+                    chunk_index=r["chunk_index"],
+                    text=r["text"]
+                )
+                for r in cursor.fetchall()
+            ]
+
     def get_chunks_for_document(self, document_id: str) -> List[Dict[str, Any]]:
         """Retrieve all chunks belonging to a document."""
         with self._get_connection() as conn:

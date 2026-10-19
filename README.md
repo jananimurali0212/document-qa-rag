@@ -265,20 +265,33 @@ cp .env.example .env
 
 ## 7. Running the Application
 
-Launch the Streamlit interactive dashboard:
+### Option A: Modern Web UI (Recommended • FastAPI + Vanilla SPA)
+Launch the modern, responsive web application (zero-Streamlit, ultra-fast single page interface with dark glassmorphism, dynamic animations, live telemetry, and interactive SVG charts):
 
 ```bash
 # Using the active virtualenv
+python server.py
+```
+
+The application opens instantly at [**`http://localhost:8000`**](http://localhost:8000).
+
+#### Features:
+1. **⚡ Live Telemetry & System Status:** Real-time indicator for Gemini 3.8 Flash connectivity, indexed document count, chunk count, and vector store backend.
+2. **💬 Chat & Q&A:** Natural conversational search with quick prompt chips, markdown rendering, copy-to-clipboard, and expandable audited citations with page numbers and relevance scores.
+3. **📑 Knowledge Base Management:** Drag-and-drop document upload (PDF, DOCX, TXT), animated progress bar, document inventory table, and modal chunk inspector.
+4. **📊 Evaluation Benchmark Harness:** Interactive evaluation against golden datasets measuring Hit Rate@K, Recall@K, MRR, Precision@K, Faithfulness, and Latency, coupled with an interactive $K \in [1, 3, 5]$ parameter sweep chart and one-click CSV/JSON export.
+5. **⚙️ Pipeline Tuning Drawer:** Instant adjustments for Top-K candidates, neural reranking toggle, chunk size, and chunk overlap.
+
+---
+
+### Option B: Streamlit Dashboard (Alternative)
+If you prefer running via Streamlit:
+
+```bash
 streamlit run app.py
 ```
 
-The app will open automatically in your browser at `http://localhost:8501`.
-
-### App Tabs Overview
-1. **📁 Document Ingestion:** Drag-and-drop PDFs, DOCX, and TXT files, inspect parsed chunks, and manage knowledge base documents.
-2. **💬 Context-Grounded Q&A:** Ask questions and inspect expandable source citations with exact page numbers and document names.
-3. **📊 Evaluation Benchmark:** Run the evaluation harness on the golden dataset, view Hit Rate, Recall, MRR, and interactive Plotly comparison charts.
-4. **📑 Reports & Audit History:** Export evaluation data to CSV/JSON, view historical experiment runs from SQLite, and read the Markdown summary report.
+Opens at `http://localhost:8501`.
 
 ---
 
